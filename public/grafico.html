@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfico Aprobados/Suspensos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #333;
+            width: 100%;
+            height: 100px;
+        }
+
+        h1 {
+            color: #ffffff;
+            text-align: center;
+        }
+
+        canvas {
+            margin: 0 auto;
+            display: block;
+        }
+
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        canvas {
+            width: 60%;
+        }
+    </style>
+</head>
+
+<header>
+    <h1>Gráfico Aprobados/Suspensos</h1>
+</header>
+
+<body>
+    <canvas id="grafico"></canvas>
+
+    <script>
+        fetch('/graficas')
+            .then(response => response.json())
+            .then(data => {
+                const asignaturas = [];
+                const aprobados = [];
+                const suspensos = [];
+
+                data.forEach(alumno => {
+                    const nombre_curso = alumno.nombre_curso;
+                    const aprobado = alumno.aprobado;
+
+                    const index = asignaturas.indexOf(nombre_curso);
+                    if (index === -1) {
+                        asignaturas.push(nombre_curso);
+                        aprobados.push(aprobado === 1 ? 1 : 0);
+                        suspensos.push(aprobado === 0 ? 1 : 0);
+                    } else {
+                        if (aprobado === 1) {
+                            aprobados[index]++;
+                        } else {
+                            suspensos[index]++;
+                        }
+                    }
+                });
+
+                // Crear el gráfico
+                const ctx = document.getElementById('grafico').getContext('2d');
+                const myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: asignaturas,
+                        datasets: [{
+                            label: 'Aprobados',
+                            data: aprobados,
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: 'Suspensos',
+                            data: suspensos,
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                stacked: true,
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            },
+                            x: {
+                                stacked: true
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error al obtener los datos:', error));
+    </script>
+
+    <br>
+    <button onclick="window.location.href = '/alumnos.html';">Atrás</button>
+
+</body>
+
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modificar Curso</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px 0;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button[type="button"] {
+            margin-top: 10px;
+            background-color: #bbb;
+        }
+
+        button[type="button"]:hover {
+            background-color: #999;
+        }
+
+        .alert {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f44336;
+            color: white;
+            border-radius: 5px;
+        }
+
+        #volver {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 175px;
+            margin-left: 448px;
+        }
+
+        #volver:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Modificar Curso</h1>
+
+    <form id="formulario" onsubmit="actualizarCurso()">
+        <label for="nombre">Nombre del Curso:</label><br>
+        <input type="text" id="nombre" name="nombre"><br><br>
+        <label for="descripcion">Descripción:</label><br>
+        <textarea id="descripcion" name="descripcion"></textarea><br><br>
+        <label for="horas">Horas:</label><br>
+        <input type="number" id="horas" name="horas"><br><br>
+        <input type="hidden" id="id" name="id" value="">
+        <button type="button" onclick="obtenerDetallesCurso()">Curso a cambiar</button>
+        <button type="button" onclick="actualizarCurso()">Actualizar</button>
+    </form>
+
+    <button id="volver" onclick="window.location.href = '/index.html';">Atrás</button>
+
+    <script>
+        // Función para obtener los detalles del curso
+        function obtenerDetallesCurso() {
+            const idCurso = prompt("Por favor ingrese el ID del curso que desea modificar:");
+            if (idCurso) {
+                fetch('/detallesCurso', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: idCurso })
+                })
+                    .then(response => response.json())
+                    .then(curso => {
+                        if (curso) {
+                            // Llenar el formulario con los detalles del curso
+                            document.getElementById('nombre').value = curso.nombre_curso;
+                            document.getElementById('descripcion').value = curso.descripcion;
+                            document.getElementById('horas').value = curso.duracion_horas;
+                            document.getElementById('id').value = curso.id_curso;
+                        } else {
+                            alert('No se encontró ningún curso con el ID proporcionado.');
+                        }
+                    })
+                    .catch(error => console.error('Error al obtener los detalles del curso:', error));
+            }
+        }
+
+
+        // Función para enviar una solicitud PUT al servidor para actualizar el curso
+        function actualizarCurso() {
+            const formData = new FormData(document.getElementById('formulario'));
+
+            fetch('/actualizarCurso', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: formData.get("id"),
+                    nombre: formData.get("nombre"),
+                    descripcion: formData.get("descripcion"),
+                    horas: formData.get("horas")
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Curso actualizado correctamente.');
+                    } else {
+                        alert('Error al actualizar el curso.');
+                    }
+                })
+                .catch(error => console.error('Error al actualizar el curso:', error));
+        }
+
+    </script>
+
+</body>
+
+</html>
