@@ -1,1 +1,1 @@
-https://practica-servidor-sql.onrender.com/index.html
+https://practica-servidor-sql.onrender.com
